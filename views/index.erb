@@ -3,11 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projekt #2</title>
-    <link rel="stylesheet" type="text/css" href="/style.css?<%=Time.now.to_i%>">
+    <title>BeatSun</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/style.css?<%=Time.now.to_i%>"/>
 </head>
 <body>
-  <h1>Webbserverprogrammering 1 - Projekt 3 - mall</h1>
-  <img src="/img/glhf.png">
+    <header class="header">
+        <div class="container">
+            <div class="logo">BeatSun</div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Beats</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Sign Up</a></li>
+                    <li><a href="#">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="hero">
+            <div class="container">
+                <h1>Discover and Buy Beats</h1>
+                <p>Your ultimate marketplace for high-quality beats and instrumentals.</p>
+                <button class="cta">Start Exploring</button>
+            </div>
+        </section>
+
+        <section class="featured">
+            <div class="container">
+                <h2>Featured Beats</h2>
+                <div class="beat-grid">
+                  <div class="beat-card">
+
+                  </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 BeatSun. All Rights Reserved.</p>
+        </div>
+    </footer>
 </body>
 </html>
