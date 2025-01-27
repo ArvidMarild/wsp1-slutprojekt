@@ -13,27 +13,24 @@ class App < Sinatra::Base
       return @db
     end
 
-    get '/loginlink' do
-        erb :login
-      end
-
-    post '/login' do
-
+    get '/login' do
+      erb :login
     end
       
-    get '/signuplink' do
+    get '/signup' do
       erb :signup
     end
 
     post '/singup' do
       puts "PARAMS: #{params.inspect}" # Log parameters for debugging
+      password_hashed = BCrypt::Password.create(params["password"])
 
       if params["signup-password"] == params["signup-confirm-password"]
         db.execute("INSERT INTO users (email, username, password) VALUES(?,?,?)", 
         [   
-            params["signup-email"],
-            params["signup-name"],
-            params["signup-password"]
+            params["email"],
+            params["name"],
+            password_hashed
         ])
         redirect "/"
       else
