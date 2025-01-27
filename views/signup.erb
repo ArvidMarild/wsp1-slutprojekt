@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Beatsun</title>
+    <link      rel="stylesheet"
+      type="text/css"
+      href="/style.css?<%=Time.now.to_i%>"/>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo"><a href="/" style="color: white; text-decoration: none;">Beatsun</a></div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/loginlink">Login</a></li>
+                    <li><a href="/signuplink">Sign Up</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="auth-section">
+            <div class="container">
+                <div class="auth-form">
+                    <h2>Sign Up</h2>
+                    <form action="/singup" method="post">
+                        <label for="signup-name">Full Name:</label>
+                        <input type="text" id="signup-name" name="name" required>
+
+                        <label for="signup-email">Email:</label>
+                        <input type="email" id="signup-email" name="email" required>
+
+                        <label for="signup-password">Password:</label>
+                        <input type="password" id="signup-password" name="password" required>
+
+                        <label for="signup-confirm-password">Confirm Password:</label>
+                        <input type="password" id="signup-confirm-password" name="confirm_password" required>
+
+                        <button type="submit" class="cta">Sign Up</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Beatsun. All Rights Reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
