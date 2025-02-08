@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeatSun</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/style.css?<%=Time.now.to_i%>"/>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">BeatSun</div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="#">Beats</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="hero">
+            <a href="/upload"><h3>Upload a Beat!</h3></a>
+        </section>
+
+        <section class="featured">
+            <div class="container">
+                <h2>Featured Beats</h2>
+                <div class="beat-grid">
+                  <div class="beat-card">
+
+                  </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 BeatSun. All Rights Reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -195,3 +195,12 @@ body {
 .auth-form button:hover {
   background-color: #f39c12;
 }
+
+.message {
+  color: red;
+  margin-bottom: 10px;
+}
+
+a {
+  color: black;
+}

@@ -19,6 +19,11 @@ class Seeder
                 email TEXT NOT NULL,
                 username TEXT NOT NULL,
                 password TEXT NOT NULL)')
+    db.execute('CREATE TABLE beats (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                genre TEXT NOT NULL,
+                key TEXT NOT NULL,
+                bpm INTEGER NOT NULL)')
   end
 
   def self.populate_tables
