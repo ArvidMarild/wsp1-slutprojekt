@@ -16,9 +16,9 @@
             <p class="message"><%= @message %></p>
         <% end %>
         <form action="/upload" method="post" enctype="multipart/form-data">
-            <input type="file" name="file" accept=".mp3, .wav" required>
-            <button type="submit">Upload</button>
-        </form>
+    <input type="file" name="file" accept=".mp3, .wav">
+    <input type="submit" value="Upload">
+  </form>
     </div>
 </body>
 </html>

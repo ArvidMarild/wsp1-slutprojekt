@@ -27,7 +27,13 @@ class App < Sinatra::Base
     end
 
     get '/admin' do
-      erb :admin
+      unless session[:user_id]
+        redirect '/login'
+      end
+    
+      user = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id]).first
+    
+      erb :admin, locals: { username: user["username"] }
     end
 
     get '/upload' do
@@ -37,22 +43,15 @@ class App < Sinatra::Base
     post '/upload' do
       if params[:file]
         filename = params[:file][:filename]
-        tempfile = params[:file][:tempfile]
-        ext = File.extname(filename).downcase
-        
-        if %w[.mp3 .wav].include?(ext)
-          filepath = File.join(UPLOADS_DIR, filename)
-          File.open(filepath, 'wb') do |file|
-            file.write(tempfile.read)
-          end
-          @message = "File uploaded successfully!"
-        else
-          @message = "Invalid file type. Only MP3 and WAV are allowed."
+        file = params[:file][:tempfile]
+    
+        File.open("uploads/#{filename}", 'wb') do |f|
+          f.write(file.read)
         end
+        "File uploaded successfully: #{filename}"
       else
-        @message = "No file selected."
+        "No file selected!"
       end
-      erb :upload
     end
 
     get '/unauthorized' do

@@ -14,9 +14,11 @@ body {
 
 /* Header */
 .header {
+  display: flex;
+  justify-content: space-around;
   background-color: #222;
   color: #fff;
-  padding: 1rem 0;
+  padding: 1rem;
 }
 
 .logo {
@@ -203,4 +205,5 @@ body {
 
 a {
   color: black;
+  text-decoration: none;
 }
