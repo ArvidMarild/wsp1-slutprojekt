@@ -37,6 +37,9 @@ class App < Sinatra::Base
     end
 
     get '/upload' do
+      unless session[:user_id]
+        redirect '/login'
+      end
       erb :upload
     end
 
@@ -44,6 +47,8 @@ class App < Sinatra::Base
       if params[:file]
         filename = params[:file][:filename]
         file = params[:file][:tempfile]
+        p file
+        username = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id]).first
     
         File.open("uploads/#{filename}", 'wb') do |f|
           f.write(file.read)
@@ -68,17 +73,23 @@ class App < Sinatra::Base
       puts "PARAMS: #{params.inspect}" # Log parameters for debugging
       password_hashed = BCrypt::Password.create(params["password"])
 
-      if params["signup-password"] == params["signup-confirm-password"]
-        db.execute("INSERT INTO users (email, username, password) VALUES(?,?,?)", 
-        [   
-            params["email"],
-            params["name"],
-            password_hashed
-        ])
-        redirect "/"
-      else
-        erb :signupreject
+      db_result = db.execute("SELECT * FROM users WHERE email = ?", [params[:email]])
+
+      if db_reuslt.length == 0
+        if params[:password] == params[:comfirm_password] 
+          db.execute("INSERT INTO users (email, username, password) VALUES(?,?,?)", 
+          [   
+              params["email"],
+              params["name"],
+              password_hashed
+          ])
+          redirect "/"
+        else
+          "Different passwords"
+        end
       end
+
+      user = db_result[0]
     end
 
     post '/login' do
