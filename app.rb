@@ -53,6 +53,13 @@ class App < Sinatra::Base
         File.open("uploads/#{filename}", 'wb') do |f|
           f.write(file.read)
         end
+        db.execute("INSERT INTO beats (artist, genre, key, bpm) VALUES(?,?,?,?)",
+        [
+          username,
+          params["genre"],
+          params["key"],
+          params["bpm"]
+        ])
         "File uploaded successfully: #{filename}"
       else
         "No file selected!"
@@ -74,9 +81,8 @@ class App < Sinatra::Base
       password_hashed = BCrypt::Password.create(params["password"])
 
       db_result = db.execute("SELECT * FROM users WHERE email = ?", [params[:email]])
-
-      if db_reuslt.length == 0
-        if params[:password] == params[:comfirm_password] 
+      if db_result.length == 0
+        if params[:password] == params[:confirm_password] 
           db.execute("INSERT INTO users (email, username, password) VALUES(?,?,?)", 
           [   
               params["email"],
@@ -85,11 +91,13 @@ class App < Sinatra::Base
           ])
           redirect "/"
         else
+          p params[:password]
+          p params[:confirm_password]
           "Different passwords"
         end
+      else
+        "Email already exists"
       end
-
-      user = db_result[0]
     end
 
     post '/login' do
