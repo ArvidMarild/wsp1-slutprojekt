@@ -30,11 +30,11 @@ class App < Sinatra::Base
       unless session[:user_id]
         redirect '/login'
       end
-    
       user = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id]).first
-    
-      erb :admin, locals: { username: user["username"] }
-    end
+      beats = Dir.glob("uploads/*.mp3").map { |file| File.basename(file) }
+      p beats
+      erb :admin, locals: { username: user["username"], beats: beats }
+    end    
 
     get '/upload' do
       unless session[:user_id]
@@ -48,17 +48,19 @@ class App < Sinatra::Base
         filename = params[:file][:filename]
         file = params[:file][:tempfile]
         p file
-        username = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id]).first
+        user = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id].to_i).first
+        username = user ? user["username"] : "Unknown"
     
         File.open("uploads/#{filename}", 'wb') do |f|
           f.write(file.read)
         end
-        db.execute("INSERT INTO beats (artist, genre, key, bpm) VALUES(?,?,?,?)",
+        db.execute("INSERT INTO beats (artist, genre, key, bpm, filepath) VALUES(?,?,?,?,?)",
         [
           username,
           params["genre"],
           params["key"],
-          params["bpm"]
+          params["bpm"],
+          "uploads/#{filename}"
         ])
         "File uploaded successfully: #{filename}"
       else

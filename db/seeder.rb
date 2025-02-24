@@ -22,10 +22,11 @@ class Seeder
                 password TEXT NOT NULL)')
     db.execute('CREATE TABLE beats (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                artist TEXT NOT NULL,
+                artist NOT NULL,
                 genre TEXT NOT NULL,
                 key TEXT NOT NULL,
-                bpm INTEGER NOT NULL)')
+                bpm INTEGER NOT NULL,
+                filepath NOT NULL)')
   end
 
   def self.populate_tables
