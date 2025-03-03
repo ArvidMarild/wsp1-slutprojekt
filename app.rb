@@ -1,5 +1,4 @@
 class App < Sinatra::Base
-
     get '/' do
         erb(:"index")
     end
@@ -31,27 +30,34 @@ class App < Sinatra::Base
         redirect '/login'
       end
       user = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id]).first
-      beats = Dir.glob("uploads/*.mp3").map { |file| File.basename(file) }
-      p beats
+      beats = Dir.glob("public/uploads/*.mp3").map { |file| File.basename(file) }
+      
       erb :admin, locals: { username: user["username"], beats: beats }
     end    
 
-    get '/upload' do
+    get '/uploads' do
       unless session[:user_id]
         redirect '/login'
       end
-      erb :upload
+      # @upload = db.execute("SELECT * FROM users")
+      erb :uploads
     end
 
-    post '/upload' do
+    # get '/uploads/:id' do |id|
+    #   @upload = db.execute("SELECT filepath FROM beats WHERE id = ?", id).first
+    #   redirect '/admin'
+    # end
+
+    post '/uploads' do 
       if params[:file]
         filename = params[:file][:filename]
         file = params[:file][:tempfile]
+        type = File.extname(filename)
         p file
         user = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id].to_i).first
         username = user ? user["username"] : "Unknown"
     
-        File.open("uploads/#{filename}", 'wb') do |f|
+        File.open("public/uploads/#{Time.now.to_i}#{type}", 'wb') do |f|
           f.write(file.read)
         end
         db.execute("INSERT INTO beats (artist, genre, key, bpm, filepath) VALUES(?,?,?,?,?)",
@@ -60,7 +66,7 @@ class App < Sinatra::Base
           params["genre"],
           params["key"],
           params["bpm"],
-          "uploads/#{filename}"
+          filename
         ])
         "File uploaded successfully: #{filename}"
       else

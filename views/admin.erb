@@ -24,7 +24,7 @@
 
     <main class="main">
         <section class="hero">
-            <a href="/upload"><h1>Upload a Beat!</h1></a>
+            <a href="/uploads"><h1>Upload a Beat!</h1></a>
         </section>
 
     <section class="featured">
@@ -35,8 +35,8 @@
             <div class="beat-card">
                 <h3><%= File.basename(beat, ".mp3") %></h3>
                 <audio controls>
-                    <source src="<%= "uploads/" + beat %>" type="audio/mpeg">
-                    Your browser does not support the audio element.
+                    <source src="/uploads/<%= beat %>" type="audio/mpeg">
+
                 </audio>
             </div>
         <% end %>
