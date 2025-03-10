@@ -19,16 +19,16 @@
     
         <form action="/uploads" method="post" enctype="multipart/form-data" class="upload-form">
             <label for="file" class="form-label">Choose an audio file</label>
-            <input type="file" name="file" id="file" accept=".mp3, .wav" class="form-input">
+            <input type="file" name="file" id="file" accept=".mp3, .wav" class="form-input" required>
     
             <label for="genre" class="form-label">Genre</label>
-            <input type="text" id="genre" name="genre" class="form-input" placeholder="Enter genre">
+            <input type="text" id="genre" name="genre" class="form-input" placeholder="Enter genre" required>
     
             <label for="bpm" class="form-label">BPM</label>
-            <input type="text" id="bpm" name="bpm" class="form-input" placeholder="Enter BPM">
+            <input type="text" id="bpm" name="bpm" class="form-input" placeholder="Enter BPM" required>
     
             <label for="key" class="form-label">Key</label>
-            <select name="key" id="key" class="form-select">
+            <select name="key" id="key" class="form-select" required>
                 <option value="">Select a key</option>
                 <option value="C">C Major</option>
                 <option value="C#">C# Major / Db Major</option>
@@ -54,7 +54,10 @@
                 <option value="Am">A Minor</option>
                 <option value="A#m">A# Minor / Bb Minor</option>
                 <option value="Bm">B Minor</option>
-            </select>
+            </select> <br>
+
+            <label for="name" class="form-label">Name your track </label>
+            <input type="text" id="name" name="name" class="form-input" placeholder="Enter Name" required>
     
             <input type="submit" value="Upload" class="submit-btn">
         </form>

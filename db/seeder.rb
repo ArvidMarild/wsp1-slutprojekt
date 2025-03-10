@@ -26,7 +26,8 @@ class Seeder
                 genre TEXT NOT NULL,
                 key TEXT NOT NULL,
                 bpm INTEGER NOT NULL,
-                filepath NOT NULL)')
+                filepath NOT NULL,
+                name TEXT NOT NULL)')
   end
 
   def self.populate_tables

@@ -30,9 +30,8 @@ class App < Sinatra::Base
         redirect '/login'
       end
       user = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id]).first
-      beats = Dir.glob("public/uploads/*.mp3").map { |file| File.basename(file) }
-      
-      erb :admin, locals: { username: user["username"], beats: beats }
+      beats = db.execute("SELECT * FROM beats")
+      erb :admin, locals: { username: user["username"], beats: beats}
     end    
 
     get '/uploads' do
@@ -53,6 +52,7 @@ class App < Sinatra::Base
         filename = params[:file][:filename]
         file = params[:file][:tempfile]
         type = File.extname(filename)
+        filepath = "/uploads/#{Time.now.to_i}#{type}"
         p file
         user = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id].to_i).first
         username = user ? user["username"] : "Unknown"
@@ -60,18 +60,24 @@ class App < Sinatra::Base
         File.open("public/uploads/#{Time.now.to_i}#{type}", 'wb') do |f|
           f.write(file.read)
         end
-        db.execute("INSERT INTO beats (artist, genre, key, bpm, filepath) VALUES(?,?,?,?,?)",
+        db.execute("INSERT INTO beats (artist, genre, key, bpm, filepath, name) VALUES(?,?,?,?,?,?)",
         [
           username,
           params["genre"],
           params["key"],
           params["bpm"],
-          filename
+          filepath,
+          params["name"]
         ])
-        "File uploaded successfully: #{filename}"
+        redirect '/admin'
       else
         "No file selected!"
       end
+    end
+
+    get '/beats/:id/edit' do | id |
+      @beats = db.execute('SELECT * FROM beats WHERE id = ?', id).first
+      erb(:"edit")
     end
 
     get '/unauthorized' do
