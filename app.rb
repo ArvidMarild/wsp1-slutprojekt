@@ -75,6 +75,15 @@ class App < Sinatra::Base
       end
     end
 
+    get '/beats' do
+      unless session[:user_id]
+        redirect '/login'
+      end
+      user = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id]).first
+      beats = db.execute("SELECT * FROM beats")
+      erb :edit, locals: {beats: beats, username: user["username"]} 
+    end
+
     get '/beats/:id/edit' do | id |
       @beats = db.execute('SELECT * FROM beats WHERE id = ?', id).first
       erb(:"edit")
@@ -93,8 +102,8 @@ class App < Sinatra::Base
     post '/singup' do
       puts "PARAMS: #{params.inspect}" # Log parameters for debugging
       password_hashed = BCrypt::Password.create(params["password"])
-
       db_result = db.execute("SELECT * FROM users WHERE email = ?", [params[:email]])
+
       if db_result.length == 0
         if params[:password] == params[:confirm_password] 
           db.execute("INSERT INTO users (email, username, password) VALUES(?,?,?)", 
@@ -103,7 +112,7 @@ class App < Sinatra::Base
               params["name"],
               password_hashed
           ])
-          redirect "/"
+          redirect "/admin"
         else
           p params[:password]
           p params[:confirm_password]
