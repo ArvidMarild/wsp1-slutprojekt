@@ -1,6 +1,7 @@
 class App < Sinatra::Base
     get '/' do
-        erb(:"index")
+      @beats = db.execute("SELECT * FROM beats")
+      erb(:"index")
     end
 
     def db
@@ -30,22 +31,17 @@ class App < Sinatra::Base
         redirect '/login'
       end
       user = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id]).first
-      beats = db.execute("SELECT * FROM beats")
-      erb :admin, locals: { username: user["username"], beats: beats}
+      @beats = db.execute("SELECT * FROM beats")
+      erb :admin, locals: { username: user["username"]}
     end    
 
     get '/uploads' do
       unless session[:user_id]
         redirect '/login'
       end
-      # @upload = db.execute("SELECT * FROM users")
-      erb :uploads
+      user = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id]).first
+      erb :uploads, locals: {username: user["username"]}
     end
-
-    # get '/uploads/:id' do |id|
-    #   @upload = db.execute("SELECT filepath FROM beats WHERE id = ?", id).first
-    #   redirect '/admin'
-    # end
 
     post '/uploads' do 
       if params[:file]
@@ -80,8 +76,8 @@ class App < Sinatra::Base
         redirect '/login'
       end
       user = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id]).first
-      beats = db.execute("SELECT * FROM beats")
-      erb :edit, locals: {beats: beats, username: user["username"]} 
+      @beats = db.execute("SELECT * FROM beats")
+      erb :edit, locals: {username: user["username"]} 
     end
 
     get '/beats/:id/edit' do | id |

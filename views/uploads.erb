@@ -10,6 +10,18 @@
       href="/style.css?<%=Time.now.to_i%>"/>
 </head>
 <body>
+    <header class="header">
+        <div class="logo">BeatSun</div>
+        <nav class="nav">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/beats">Your Beats</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+        <p>Welcome, <%= username %>!</p>
+    </header>
+    
     <div class="container">
         <h1>Upload Audio File</h1>
     

@@ -25,7 +25,7 @@
             <div class="container">
                 <h2>My Uploaded Beats</h2>
                 <div class="uploaded-beat-grid">
-                    <% beats.each do |beat| %>
+                    <% @beats.each do |beat| %>
                         <% if username == beat['artist']%>
                             <div class="uploaded-beat-card">
                                 <h3><%= beat['name'] %></h3>
@@ -36,7 +36,7 @@
                                 <audio controls>
                                     <source src="<%= beat['filepath'] %>" type="audio/mpeg">
                                 </audio>
-                                <button class="uploaded-beat-delete-btn">Delete</button>
+                                <button class="uploaded-beat-delete-btn" >Delete</button>
                                 <button class="uploaded-beat-edit-btn">Edit</button>
                             </div>
                         <% end %>

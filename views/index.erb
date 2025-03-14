@@ -37,9 +37,18 @@
             <div class="container">
                 <h2>Featured Beats</h2>
                 <div class="beat-grid">
-                  <div class="beat-card">
-
-                  </div>
+                <% @beats.each do |beat| %>
+                    <div class="beat-card">
+                        <h3><%= beat['name'] %></h3>
+                        <p><strong>Artist:</strong> <%= beat['artist'] %></p>
+                        <p><strong>Genre:</strong> <%= beat['genre'] %></p>
+                        <p><strong>Key:</strong> <%= beat['key'] %></p>
+                        <p><strong>BPM:</strong> <%= beat['bpm'] %></p>
+                        <audio controls>
+                            <source src="<%= beat['filepath'] %>" type="audio/mpeg">
+                        </audio>
+                    </div>
+                <% end %>
                 </div>
             </div>
         </section>
