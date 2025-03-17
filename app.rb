@@ -72,17 +72,36 @@ class App < Sinatra::Base
     end
 
     get '/beats' do
+      p "beats"
       unless session[:user_id]
         redirect '/login'
       end
       user = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id]).first
       @beats = db.execute("SELECT * FROM beats")
-      erb :edit, locals: {username: user["username"]} 
+      erb :beats, locals: {username: user["username"]} 
     end
 
     get '/beats/:id/edit' do | id |
       @beats = db.execute('SELECT * FROM beats WHERE id = ?', id).first
       erb(:"edit")
+    end
+
+    post '/beats/:id/update' do |id|
+      p params
+      p id
+      db.execute("UPDATE beats SET genre=?, key=?, bpm=?, name=? WHERE id=?",
+        [
+          params["genre"],
+          params["key"],
+          params["bpm"],
+          params["name"]
+        ])
+        redirect '/admin'
+    end
+
+    post '/beats/:id/delete' do | id |
+      db.execute('DELETE FROM beats WHERE id = ?', id)
+      redirect "/admin"
     end
 
     get '/unauthorized' do

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Uploaded Beats - Beatsun</title>
+    <link rel="stylesheet" type="text/css" href="/style.css?<%=Time.now.to_i%>"/>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo"><a href="/" class="logo-link">Beatsun</a></div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="/admin">Home</a></li>
+                    <li><a href="/uploads">Upload</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="uploaded-beats">
+            <div class="container">
+                <h2>My Uploaded Beats</h2>
+                <div class="uploaded-beat-grid">
+                    <% @beats.each do |beat| %>
+                        <% if username == beat['artist']%>
+                            <div class="uploaded-beat-card">
+                                <h3><%= beat['name'] %></h3>
+                                <p><strong>Artist:</strong> <%= beat['artist'] %></p>
+                                <p><strong>Genre:</strong> <%= beat['genre'] %></p>
+                                <p><strong>Key:</strong> <%= beat['key'] %></p>
+                                <p><strong>BPM:</strong> <%= beat['bpm'] %></p>
+                                <audio controls>
+                                    <source src="<%= beat['filepath'] %>" type="audio/mpeg">
+                                </audio>
+                                <form action="/beats/<%=beat['id']%>/edit">
+                                    <input class="uploaded-beat-edit-btn" id="edit" type="submit" value="Edit">
+                                </form>
+                                
+                                <form action="/beats/<%=beat['id']%>/delete" method="post">
+                                    <input class="uploaded-beat-delete-btn" id="delete" type="submit" value="Delete">
+                                </form>
+                            </div>
+                        <% end %>
+                    <% end %>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Beatsun. All Rights Reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
