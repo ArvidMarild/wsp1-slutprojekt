@@ -56,14 +56,15 @@ class App < Sinatra::Base
         File.open("public/uploads/#{Time.now.to_i}#{type}", 'wb') do |f|
           f.write(file.read)
         end
-        db.execute("INSERT INTO beats (artist, genre, key, bpm, filepath, name) VALUES(?,?,?,?,?,?)",
+        db.execute("INSERT INTO beats (artist, genre, key, bpm, filepath, name, price) VALUES(?,?,?,?,?,?,?)",
         [
           username,
           params["genre"],
           params["key"],
           params["bpm"],
           filepath,
-          params["name"]
+          params["name"],
+          params["price"]
         ])
         redirect '/admin'
       else
@@ -89,15 +90,18 @@ class App < Sinatra::Base
     post '/beats/:id/update' do |id|
       p params
       p id
-      db.execute("UPDATE beats SET genre=?, key=?, bpm=?, name=? WHERE id=?",
+      db.execute("UPDATE beats SET genre=?, key=?, bpm=?, name=?, price=? WHERE id=?", 
         [
           params["genre"],
           params["key"],
           params["bpm"],
-          params["name"]
+          params["name"],
+          params["price"],
+          id
         ])
-        redirect '/admin'
+      redirect '/admin'
     end
+    
 
     post '/beats/:id/delete' do | id |
       db.execute('DELETE FROM beats WHERE id = ?', id)
@@ -168,5 +172,10 @@ class App < Sinatra::Base
         status 401
         redirect '/unauthorized'
       end
+    end
+
+    get '/shop' do
+      @beats = db.execute("SELECT * FROM beats")
+      erb :shop
     end
 end

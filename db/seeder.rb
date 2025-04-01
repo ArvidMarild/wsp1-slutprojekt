@@ -27,7 +27,8 @@ class Seeder
                 key TEXT NOT NULL,
                 bpm INTEGER NOT NULL,
                 filepath NOT NULL,
-                name TEXT NOT NULL)')
+                name TEXT NOT NULL,
+                price INTEGER NOT NULL)')
   end
 
   def self.populate_tables
