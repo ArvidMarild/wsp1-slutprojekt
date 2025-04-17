@@ -28,6 +28,8 @@
                 <div class="auth-form">
                     <h2>Login</h2>
                     <form action="/login" method="post">
+                    <input type="hidden" name="authenticity_token" value="<%= session[:csrf] %>">
+
                         <label for="login-email">Email:</label>
                         <input type="email" id="login-email" name="email" required>
 

@@ -1,4 +1,6 @@
 <form action="/beats/<%= @beats["id"] %>/update" method="post">
+<input type="hidden" name="authenticity_token" value="<%= session[:csrf] %>">
+
     <label for="genre" class="form-label">Genre</label>
     <input value='<%=@beats['genre']%>' type="text" id="genre" name="genre" class="form-input" placeholder="Enter genre" required>
     

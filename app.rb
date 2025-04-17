@@ -1,9 +1,13 @@
 class App < Sinatra::Base
-    get '/' do
-      @beats = db.execute("SELECT * FROM beats")
-      erb(:"index")
-    end
+  # Logging och inloggnings-skydd
 
+  configure do
+    enable :sessions
+    set :session_secret, SecureRandom.hex(64)
+    use Rack::Protection::AuthenticityToken
+  end
+
+  helpers do
     def db
       return @db if @db
 
@@ -12,10 +16,11 @@ class App < Sinatra::Base
 
       return @db
     end
-
-    configure do
-      enable :sessions
-      set :session_secret, SecureRandom.hex(64)
+  end
+  
+    get '/' do
+      @beats = db.execute("SELECT * FROM beats")
+      erb(:"index")
     end
 
     get '/login' do
@@ -134,7 +139,7 @@ class App < Sinatra::Base
       redirect '/'
     end
 
-    post '/singup' do
+    post '/signup' do
       puts "PARAMS: #{params.inspect}" # Log parameters for debugging
       password_hashed = BCrypt::Password.create(params["password"])
       db_result = db.execute("SELECT * FROM users WHERE email = ?", [params[:email]])
@@ -156,39 +161,52 @@ class App < Sinatra::Base
       else
         "Email already exists"
       end
-    end
+    end   
 
     post '/login' do
       request_email = params[:email]
       request_plain_password = params[:password]
-  
-      user = db.execute("SELECT *
-              FROM users
-              WHERE email = ?",
-              request_email).first
+      ip = request.ip
+      user = db.execute("SELECT * FROM users WHERE email = ?", request_email).first
+
+      attempts = db.execute("SELECT COUNT(*) as count FROM login_log WHERE ip = ? AND success = 0 AND time > ?", [ip, Time.now.to_i - 60]).first
+      if attempts["count"] >= 5
+        halt 429, "För många inloggningsförsök. Försök igen om en stund."
+      end
   
       unless user
-        p "/login : Invalid e-mail."
-        status 401
+        db.execute('INSERT INTO login_log (time, email, ip, success) VALUES(?,?,?,?)', 
+          [
+            Time.now.to_i,
+            request_email,
+            ip,
+            0
+          ])
         redirect '/unauthorized'
       end
   
-      db_id = user["id"].to_i
-      db_password_hashed = user["password"].to_s
-  
-      # Create a BCrypt object from the hashed password from db
-      bcrypt_db_password = BCrypt::Password.new(db_password_hashed)
-      # Check if the plain password matches the hashed password from db
-      if bcrypt_db_password == request_plain_password
-        p "/login : Logged in -> redirecting to admin"
-        session[:user_id] = db_id
+      db_password_hashed = user["password"]
+      if BCrypt::Password.new(db_password_hashed) == request_plain_password
+        session[:user_id] = user["id"]
+        db.execute('INSERT INTO login_log (time, email, ip, success) VALUES(?,?,?,?)', 
+          [
+            Time.now.to_i,
+            request_email,
+            ip,
+            1
+          ])
         redirect '/admin'
       else
-        p "/login : Invalid password."
-        status 401
+        db.execute('INSERT INTO login_log (time, email, ip, success) VALUES(?,?,?,?)', 
+          [
+            Time.now.to_i,
+            request_email,
+            ip,
+            0
+          ])
         redirect '/unauthorized'
       end
-    end
+    end   
 
     get '/shop' do
       @beats = db.execute("SELECT * FROM beats")

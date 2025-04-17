@@ -13,6 +13,7 @@ class Seeder
     db.execute('DROP TABLE IF EXISTS users')
     db.execute('DROP TABLE IF EXISTS beats')
     db.execute('DROP TABLE IF EXISTS user_beats')
+    db.execute('DROP TABLE IF EXISTS login_log')
   end
 
   def self.create_tables
@@ -35,6 +36,12 @@ class Seeder
                 user_id INTEGER,
                 beat_id INTEGER,
                 date INTEGER)')
+    db.execute('CREATE TABLE login_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                time INTEGER NOT NULL,
+                email TEXT NOT NULL,
+                ip TEXT,
+                success BOOL NOT NULL)')
   end
 
   def self.populate_tables
