@@ -21,7 +21,8 @@ class Seeder
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email TEXT NOT NULL,
                 username TEXT NOT NULL,
-                password TEXT NOT NULL)')
+                password TEXT NOT NULL,
+                admin INTEGER DEFAULT 0)')
     db.execute('CREATE TABLE beats (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 artist NOT NULL,
@@ -45,7 +46,8 @@ class Seeder
   end
 
   def self.populate_tables
-
+    password_hashed = BCrypt::Password.create('arvid12345')
+    db.execute('INSERT INTO users (email, username, password, admin) VALUES (?,?,?,?)', ['arvid.marild@gmail.com', 'Arvid Mårild', password_hashed, 1])
   end
 
   private

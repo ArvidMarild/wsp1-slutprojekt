@@ -42,6 +42,27 @@
                                 </form>
                                 
                                 <form action="/beats/<%=beat['id']%>/delete" method="post">
+                                    <input type="hidden" name="authenticity_token" value="<%= session[:csrf] %>">
+                                    <input class="uploaded-beat-delete-btn" id="delete" type="submit" value="Delete">
+                                </form>
+                            </div>
+                        <% elsif @user['admin'] == 1%>
+                            <div class="uploaded-beat-card">
+                                <h3><%= beat['name'] %></h3>
+                                <p><strong>Artist:</strong> <%= beat['artist'] %></p>
+                                <p><strong>Genre:</strong> <%= beat['genre'] %></p>
+                                <p><strong>Key:</strong> <%= beat['key'] %></p>
+                                <p><strong>BPM:</strong> <%= beat['bpm'] %></p>
+                                <p><strong>Price:</strong> $<%= beat['price'] %></p>
+                                <audio controls>
+                                    <source src="<%= beat['filepath'] %>" type="audio/mpeg">
+                                </audio>
+                                <form action="/beats/<%=beat['id']%>/edit">
+                                    <input class="uploaded-beat-edit-btn" id="edit" type="submit" value="Edit">
+                                </form>
+                                
+                                <form action="/beats/<%=beat['id']%>/delete" method="post">
+                                    <input type="hidden" name="authenticity_token" value="<%= session[:csrf] %>">
                                     <input class="uploaded-beat-delete-btn" id="delete" type="submit" value="Delete">
                                 </form>
                             </div>

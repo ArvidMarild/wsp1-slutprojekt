@@ -16,6 +16,25 @@ class App < Sinatra::Base
 
       return @db
     end
+
+    def permitted_signup_params(params)
+      {
+        email: params["email"],
+        name: params["name"],
+        password: params["password"],
+        confirm_password: params["confirm_password"]
+      }
+    end    
+
+    def current_user
+      return nil unless session[:user_id]
+      db.execute("SELECT * FROM users WHERE id = ?", session[:user_id]).first
+    end
+    
+    def admin?
+      user = current_user
+      user && user["admin"].to_i == 1
+    end    
   end
   
     get '/' do
@@ -140,22 +159,16 @@ class App < Sinatra::Base
     end
 
     post '/signup' do
-      puts "PARAMS: #{params.inspect}" # Log parameters for debugging
-      password_hashed = BCrypt::Password.create(params["password"])
-      db_result = db.execute("SELECT * FROM users WHERE email = ?", [params[:email]])
+      safe_params = permitted_signup_params(params)
+      password_hashed = BCrypt::Password.create(safe_params[:password])
+      db_result = db.execute("SELECT * FROM users WHERE email = ?", [safe_params[:email]])
 
       if db_result.length == 0
-        if params[:password] == params[:confirm_password] 
-          db.execute("INSERT INTO users (email, username, password) VALUES(?,?,?)", 
-          [   
-              params["email"],
-              params["name"],
-              password_hashed
-          ])
+        if safe_params[:password] == safe_params[:confirm_password] 
+          db.execute("INSERT INTO users (email, username, password, admin) VALUES(?,?,?,?)", 
+            [   safe_params[:email], safe_params[:name], password_hashed, 0])
           redirect "/admin"
         else
-          p params[:password]
-          p params[:confirm_password]
           "Different passwords"
         end
       else
