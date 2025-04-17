@@ -12,6 +12,7 @@ class Seeder
   def self.drop_tables
     db.execute('DROP TABLE IF EXISTS users')
     db.execute('DROP TABLE IF EXISTS beats')
+    db.execute('DROP TABLE IF EXISTS user_beats')
   end
 
   def self.create_tables
@@ -29,6 +30,11 @@ class Seeder
                 filepath NOT NULL,
                 name TEXT NOT NULL,
                 price INTEGER NOT NULL)')
+    db.execute('CREATE TABLE user_beats (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                beat_id INTEGER,
+                date INTEGER)')
   end
 
   def self.populate_tables

@@ -43,8 +43,8 @@
                         <audio controls>
                             <source src="<%= beat['filepath'] %>" type="audio/mpeg">
                         </audio>
-                        <form action="/purchase" method="POST">
-                            <input type="hidden" name="beat_id" value="<%= beat['id'] %>">
+                        <form action="/purchase/<%=beat['id']%>" method="post">
+                            <input type="hidden" name="beat_id" value=<%=beat['id']%>>
                             <button type="submit" class="buy-button">Buy Now</button>
                         </form>
                     </div>

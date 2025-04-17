@@ -77,9 +77,25 @@ class App < Sinatra::Base
       unless session[:user_id]
         redirect '/login'
       end
-      user = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id]).first
+      @user = db.execute("SELECT * FROM users WHERE id = ?", session[:user_id]).first
       @beats = db.execute("SELECT * FROM beats")
-      erb :beats, locals: {username: user["username"]} 
+
+      user_id = session[:user_id]
+
+      # Get beat IDs purchased by this user
+      beat_ids = db.execute("SELECT beat_id FROM user_beats WHERE user_id = ?", [user_id]).map { |row| row["beat_id"] }
+    
+      # Now get the beat details for those IDs
+      if beat_ids.any?
+        placeholders = beat_ids.map { '?' }.join(', ')
+        purchased_beats = db.execute("SELECT * FROM beats WHERE id IN (#{placeholders})", beat_ids)
+      else
+        purchased_beats = []
+      end
+
+      @common = purchased_beats
+
+      erb :beats
     end
 
     get '/beats/:id/edit' do | id |
@@ -177,5 +193,15 @@ class App < Sinatra::Base
     get '/shop' do
       @beats = db.execute("SELECT * FROM beats")
       erb :shop
+    end
+
+    post '/purchase/:id' do | id |
+      unless session[:user_id]
+        redirect '/login'
+      end
+
+      db.execute("INSERT INTO user_beats (user_id, beat_id, date) VALUES (?, ?, ?)", [session[:user_id], id, Time.now.to_i])
+
+      redirect '/admin'
     end
 end

@@ -17,6 +17,7 @@
                 <li><a href="/">Home</a></li>
                 <li><a href="/beats">Your Beats</a></li>
                 <li><a href="/shop">Browse Beats</a></li>
+                <li><a href="/uploads">Upload Beats</a></li>                
                 <li><a href="/logout">Logout</a></li>
             </ul>
         </nav>
@@ -34,7 +35,7 @@
             <div class="container">
                 <h2>Featured Beats</h2>
                 <div class="beat-grid">
-                <% @beats.each do |beat| %>
+                <% @beats.last(3).each do |beat| %>
                     <div class="beat-card">
                         <h3><%= beat['name'] %></h3>
                         <p><strong>Artist:</strong> <%= beat['artist'] %></p>

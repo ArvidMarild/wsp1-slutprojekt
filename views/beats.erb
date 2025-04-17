@@ -26,7 +26,7 @@
                 <h2>My Uploaded Beats</h2>
                 <div class="uploaded-beat-grid">
                     <% @beats.each do |beat| %>
-                        <% if username == beat['artist']%>
+                        <% if @user['username'] == beat['artist']%>
                             <div class="uploaded-beat-card">
                                 <h3><%= beat['name'] %></h3>
                                 <p><strong>Artist:</strong> <%= beat['artist'] %></p>
@@ -47,6 +47,27 @@
                             </div>
                         <% end %>
                     <% end %>
+                </div>
+                <h2>Your Purchased Beats</h2>
+
+                <% if @common.any? %>
+                  <div class="beat-grid">
+                    <% @common.each do |beat| %>
+                      <div class="beat-card">
+                        <h3><%= beat['name'] %></h3>
+                        <p><strong>Artist:</strong> <%= beat['artist'] %></p>
+                        <p><strong>Genre:</strong> <%= beat['genre'] %></p>
+                        <p><strong>BPM:</strong> <%= beat['bpm'] %></p>
+                        <p><strong>Key:</strong> <%= beat['key'] %></p>
+                        <audio controls>
+                          <source src="<%= beat['filepath'] %>" type="audio/mpeg">
+                        </audio>
+                      </div>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <p>You haven't purchased any beats yet.</p>
+                <% end %>
                 </div>
             </div>
         </section>
