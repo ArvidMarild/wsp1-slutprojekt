@@ -41,10 +41,12 @@
                                     <input class="uploaded-beat-edit-btn" id="edit" type="submit" value="Edit">
                                 </form>
                                 
-                                <form action="/beats/<%=beat['id']%>/delete" method="post">
+                                <form action="/beats/<%= beat['id'] %>" method="post">
+                                    <input type="hidden" name="_method" value="delete">
                                     <input type="hidden" name="authenticity_token" value="<%= session[:csrf] %>">
                                     <input class="uploaded-beat-delete-btn" id="delete" type="submit" value="Delete">
-                                </form>
+                                  </form>
+                                  
                             </div>
                         <% elsif @user['admin'] == 1%>
                             <div class="uploaded-beat-card">

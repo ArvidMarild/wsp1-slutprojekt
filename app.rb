@@ -14,10 +14,8 @@ class App < Sinatra::Base
   helpers do
     def db
       return @db if @db
-
       @db = SQLite3::Database.new("db/beatsun.sqlite")
       @db.results_as_hash = true
-
       return @db
     end
 
@@ -28,134 +26,128 @@ class App < Sinatra::Base
         password: params["password"],
         confirm_password: params["confirm_password"]
       }
-    end    
+    end
 
     def current_user
       return nil unless session[:user_id]
       User.find_by_id(db, session[:user_id])
     end
-    
+
     def admin?
       user = current_user
       user && user["admin"].to_i == 1
-    end    
+    end
   end
-  
-    get '/' do
-      @beats = Beat.all(db)
-      erb(:"index")
-    end
 
-    get '/login' do
-      erb :login
-    end
-      
-    get '/signup' do
-      erb :signup
-    end
+  get '/' do
+    @beats = Beat.all(db)
+    erb :index
+  end
 
-    get '/admin' do
-      redirect '/login' unless current_user
-      @beats = Beat.all(db)
-      erb :admin, locals: { username: current_user["username"] }
-    end  
+  get '/login' do
+    erb :login
+  end
 
-    get '/uploads' do
-      redirect '/login' unless current_user
-      erb :uploads, locals: { username: current_user["username"] }
-    end
+  get '/signup' do
+    erb :signup
+  end
 
-    post '/uploads' do
-      if params[:file]
-        filename = params[:file][:filename]
-        file = params[:file][:tempfile]
-        type = File.extname(filename)
-        filepath = "/uploads/#{Time.now.to_i}#{type}"
-  
-        File.open("public#{filepath}", 'wb') do |f|
-          f.write(file.read)
-        end
-  
-        Beat.create(db, current_user["username"], params["genre"], params["key"], params["bpm"], filepath, params["name"], params["price"])
+  get '/admin' do
+    redirect '/login' unless current_user
+    @beats = Beat.all(db)
+    erb :admin, locals: { username: current_user["username"] }
+  end
+
+  get '/uploads/new' do
+    redirect '/login' unless current_user
+    erb :uploads, locals: { username: current_user["username"] }
+  end
+
+  post '/uploads' do
+    halt 400, "No file selected!" unless params[:file]
+
+    filename = params[:file][:filename]
+    file = params[:file][:tempfile]
+    type = File.extname(filename)
+    filepath = "/uploads/#{Time.now.to_i}#{type}"
+
+    File.open("public#{filepath}", 'wb') { |f| f.write(file.read) }
+
+    Beat.create(db, current_user["username"], params["genre"], params["key"], params["bpm"], filepath, params["name"], params["price"])
+    redirect '/admin'
+  end
+
+  get '/beats' do
+    redirect '/login' unless current_user
+    @user = current_user
+    @beats = Beat.all(db)
+    @common = Beat.purchased_by_user(db, session[:user_id])
+    erb :beats
+  end
+
+  get '/beats/:id/edit' do |id|
+    @beats = Beat.find_by_id(db, id)
+    erb :edit
+  end
+
+  put '/beats/:id' do |id|
+    Beat.update(db, id, params["genre"], params["key"], params["bpm"], params["name"], params["price"])
+    redirect '/admin'
+  end
+
+  delete '/beats/:id' do |id|
+    Beat.delete(db, id)
+    redirect '/admin'
+  end
+
+  get '/unauthorized' do
+    erb :unauthorized
+  end
+
+  delete '/logout' do
+    session.clear
+    redirect '/'
+  end
+
+  post '/signup' do
+    safe_params = permitted_signup_params(params)
+    if safe_params[:password] == safe_params[:confirm_password]
+      existing_user = User.find_by_email(db, safe_params[:email])
+      if existing_user
+        "Email already exists"
+      else
+        User.create(db, safe_params[:email], safe_params[:name], safe_params[:password])
         redirect '/admin'
-      else
-        "No file selected!"
       end
+    else
+      "Different passwords"
     end
+  end
 
-    get '/beats' do
-      redirect '/login' unless current_user
-      @user = current_user
-      @beats = Beat.all(db)
-      @common = Beat.purchased_by_user(db, session[:user_id])
-      erb :beats
-    end
+  post '/login' do
+    request_email = params[:email]
+    request_plain_password = params[:password]
+    ip = request.ip
 
-    get '/beats/:id/edit' do |id|
-      @beats = Beat.find_by_id(db, id)
-      erb :edit
-    end
+    attempts = Login_log.count(db, ip, Time.now.to_i)
+    halt 429, "För många inloggningsförsök. Försök igen om en stund." if attempts["count"] >= 5
 
-    post '/beats/:id/update' do |id|
-      Beat.update(db, id, params["genre"], params["key"], params["bpm"], params["name"], params["price"])
+    user = User.authenticate(db, request_email, request_plain_password)
+
+    if user
+      session[:user_id] = user["id"]
+      Login_log.create(db, Time.now.to_i, request_email, ip, 1)
       redirect '/admin'
+    else
+      Login_log.create(db, Time.now.to_i, request_email, ip, 0)
+      redirect '/unauthorized'
     end
-    
-    post '/beats/:id/delete' do |id|
-      Beat.delete(db, id)
-      redirect '/admin'
-    end
+  end
 
-    get '/unauthorized' do
-      erb :unauthorized
-    end
-
-    get '/logout' do
-      session.clear
-      redirect '/'
-    end
-
-    post '/signup' do
-      safe_params = permitted_signup_params(params)
-      if safe_params[:password] == safe_params[:confirm_password]
-        existing_user = User.find_by_email(db, safe_params[:email])
-        if existing_user
-          "Email already exists"
-        else
-          User.create(db, safe_params[:email], safe_params[:name], safe_params[:password])
-          redirect '/admin'
-        end
-      else
-        "Different passwords"
-      end
-    end
-      
-    post '/login' do
-      request_email = params[:email]
-      request_plain_password = params[:password]
-      ip = request.ip
-  
-      attempts = Login_log.count(db, ip, Time.now.to_i)
-      if attempts["count"] >= 5
-        halt 429, "För många inloggningsförsök. Försök igen om en stund."
-      end
-  
-      user = User.authenticate(db, request_email, request_plain_password)
-  
-      if user
-        session[:user_id] = user["id"]
-        Login_log.create(db, Time.now.to_i, request_email, ip, 1)
-        redirect '/admin'
-      else
-        Login_log.create(db, Time.now.to_i, request_email, ip, 0)
-        redirect '/unauthorized'
-      end
-    end   
-
-    get '/shop' do
-      @beats = Beat.all(db)
-      erb :shop
-    end
+  get '/shop' do
+    @beats = Beat.all(db)
+    erb :shop
+  end
 
     post '/purchase/:id' do |id|
       redirect '/login' unless current_user
