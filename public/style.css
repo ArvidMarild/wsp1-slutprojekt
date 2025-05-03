@@ -75,6 +75,26 @@ body {
   color: #fff;
 }
 
+nav form {
+  display: inline;
+}
+
+nav form button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+nav form button:hover {
+  color: #f39c12;
+}
+
 /* Featured Beats */
 .featured {
   padding: 3rem 0;

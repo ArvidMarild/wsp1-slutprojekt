@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Audio File</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/style.css?<%=Time.now.to_i%>"/>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">BeatSun</div>
+        <nav class="nav">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/beats/<%@user%>">Your Beats</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+        <p>Welcome, <%= username %>!</p>
+    </header>
+    
+    <div class="container">
+        <h1>Upload Audio File</h1>
+    
+        <% if @message %>
+            <p class="message"><%= @message %></p>
+        <% end %>
+    
+        <form action="/beats" method="post" enctype="multipart/form-data" class="upload-form">
+        <input type="hidden" name="authenticity_token" value="<%= session[:csrf] %>">
+
+            <label for="file" class="form-label">Choose an audio file</label>
+            <input type="file" name="file" id="file" accept=".mp3, .wav" class="form-input" required>
+    
+            <label for="genre" class="form-label">Genre</label>
+            <input type="text" id="genre" name="genre" class="form-input" placeholder="Enter genre" required>
+    
+            <label for="bpm" class="form-label">BPM</label>
+            <input type="text" id="bpm" name="bpm" class="form-input" placeholder="Enter BPM" required>
+    
+            <label for="key" class="form-label">Key</label>
+            <select name="key" id="key" class="form-select" required>
+                <option value="">Select a key</option>
+                <option value="C">C Major</option>
+                <option value="C#">C# Major / Db Major</option>
+                <option value="D">D Major</option>
+                <option value="D#">D# Major / Eb Major</option>
+                <option value="E">E Major</option>
+                <option value="F">F Major</option>
+                <option value="F#">F# Major / Gb Major</option>
+                <option value="G">G Major</option>
+                <option value="G#">G# Major / Ab Major</option>
+                <option value="A">A Major</option>
+                <option value="A#">A# Major / Bb Major</option>
+                <option value="B">B Major</option>
+                <option value="Cm">C Minor</option>
+                <option value="C#m">C# Minor / Db Minor</option>
+                <option value="Dm">D Minor</option>
+                <option value="D#m">D# Minor / Eb Minor</option>
+                <option value="Em">E Minor</option>
+                <option value="Fm">F Minor</option>
+                <option value="F#m">F# Minor / Gb Minor</option>
+                <option value="Gm">G Minor</option>
+                <option value="G#m">G# Minor / Ab Minor</option>
+                <option value="Am">A Minor</option>
+                <option value="A#m">A# Minor / Bb Minor</option>
+                <option value="Bm">B Minor</option>
+            </select> <br>
+
+            <label for="name" class="form-label">Name your track </label>
+            <input type="text" id="name" name="name" class="form-input" placeholder="Enter Name" required>
+
+            <label for="price" class="form-label">Price</label>
+            <input type="text" id="price" name="price" class="form-input" placeholder="Set Your Price" required>
+    
+            <input type="submit" value="Upload" class="submit-btn">
+        </form>
+    </div>    
+</body>
+</html>

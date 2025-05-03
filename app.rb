@@ -49,7 +49,7 @@ class App < Sinatra::Base
   end
 
   get '/signup' do
-    erb :signup
+    erb :'users/new'
   end
 
   get '/admin' do
@@ -58,12 +58,17 @@ class App < Sinatra::Base
     erb :admin, locals: { username: current_user["username"] }
   end
 
-  get '/uploads/new' do
-    redirect '/login' unless current_user
-    erb :uploads, locals: { username: current_user["username"] }
+  get '/beats' do
+    @beats = Beat.all(db)
+    erb :'beats/index'
   end
 
-  post '/uploads' do
+  get '/beats/new' do
+    redirect '/login' unless current_user
+    erb :'beats/new', locals: { username: current_user["username"] }
+  end
+
+  post '/beats' do
     halt 400, "No file selected!" unless params[:file]
 
     filename = params[:file][:filename]
@@ -77,17 +82,17 @@ class App < Sinatra::Base
     redirect '/admin'
   end
 
-  get '/beats' do
+  get '/beats/:id' do
     redirect '/login' unless current_user
     @user = current_user
     @beats = Beat.all(db)
     @common = Beat.purchased_by_user(db, session[:user_id])
-    erb :beats
+    erb :'beats/show'
   end
 
   get '/beats/:id/edit' do |id|
     @beats = Beat.find_by_id(db, id)
-    erb :edit
+    erb :'beats/edit'
   end
 
   put '/beats/:id' do |id|
@@ -100,16 +105,22 @@ class App < Sinatra::Base
     redirect '/admin'
   end
 
+  post '/beats/:id' do |id|
+    redirect '/login' unless current_user
+    User_beats.create(db, session[:user_id], id, Time.now.to_i)
+    redirect '/admin'
+  end
+
   get '/unauthorized' do
     erb :unauthorized
   end
 
-  delete '/logout' do
+  post '/logout' do
     session.clear
     redirect '/'
   end
 
-  post '/signup' do
+  post '/users/new' do
     safe_params = permitted_signup_params(params)
     if safe_params[:password] == safe_params[:confirm_password]
       existing_user = User.find_by_email(db, safe_params[:email])
@@ -144,12 +155,7 @@ class App < Sinatra::Base
     end
   end
 
-  get '/shop' do
-    @beats = Beat.all(db)
-    erb :shop
-  end
-
-    post '/purchase/:id' do |id|
+    post '/beats/purchase/:id' do |id|
       redirect '/login' unless current_user
       User_beats.create(db, session[:user_id], id, Time.now.to_i)
       redirect '/admin'
