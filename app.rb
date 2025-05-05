@@ -12,6 +12,9 @@ class App < Sinatra::Base
   end
 
   helpers do
+    # Hämtar eller initierar databasanslutningen
+    #
+    # @return [SQLite3::Database] databasanslutning
     def db
       return @db if @db
       @db = SQLite3::Database.new("db/beatsun.sqlite")
@@ -19,6 +22,10 @@ class App < Sinatra::Base
       return @db
     end
 
+    # Extraherar säkra parametrar från ett sign-up-formulär
+    #
+    # @param params [Hash] inkommande request-parametrar
+    # @return [Hash] filtrerade parametrar
     def permitted_signup_params(params)
       {
         email: params["email"],
@@ -28,46 +35,63 @@ class App < Sinatra::Base
       }
     end
 
+    # Returnerar den nu inloggade användaren
+    #
+    # @return [Hash, nil] användarens databasrad eller nil om inte inloggad
     def current_user
       return nil unless session[:user_id]
       User.find_by_id(db, session[:user_id])
     end
 
+    # Kontrollerar om aktuell användare är admin
+    #
+    # @return [Boolean] true om admin, annars false
     def admin?
       user = current_user
       user && user["admin"].to_i == 1
     end
   end
 
+  ## ROUTER ##
+  
+  # Start-/hemsidan
   get '/' do
     @beats = Beat.all(db)
     erb :index
   end
 
+  # Login-formulär
   get '/login' do
     erb :login
   end
 
+  # Signup-formulär
   get '/signup' do
     erb :'users/new'
   end
 
+  # Adminpanel, kräver inloggning
   get '/admin' do
     redirect '/login' unless current_user
     @beats = Beat.all(db)
     erb :admin, locals: { username: current_user["username"] }
   end
 
+  # Visa alla beats
   get '/beats' do
     @beats = Beat.all(db)
     erb :'beats/index'
   end
 
+  # Formulär för att ladda upp ett nytt beat
   get '/beats/new' do
     redirect '/login' unless current_user
     erb :'beats/new', locals: { username: current_user["username"] }
   end
 
+  # Skapar ett nytt beat
+  #
+  # @return [Redirect] till admin-sidan
   post '/beats' do
     halt 400, "No file selected!" unless params[:file]
 
@@ -82,6 +106,7 @@ class App < Sinatra::Base
     redirect '/admin'
   end
 
+  # Visar ett enskilt beat (kräver inloggning)
   get '/beats/:id' do
     redirect '/login' unless current_user
     @user = current_user
@@ -90,36 +115,51 @@ class App < Sinatra::Base
     erb :'beats/show'
   end
 
+  # Redigerar ett beat
+  #
+  # @param id [String] ID för beatet
   get '/beats/:id/edit' do |id|
     @beats = Beat.find_by_id(db, id)
     erb :'beats/edit'
   end
 
+  # Uppdaterar ett beat
+  #
+  # @param id [String] ID för beatet
   put '/beats/:id' do |id|
     Beat.update(db, id, params["genre"], params["key"], params["bpm"], params["name"], params["price"])
     redirect '/admin'
   end
 
+  # Tar bort ett beat
+  #
+  # @param id [String] ID för beatet
   delete '/beats/:id' do |id|
     Beat.delete(db, id)
     redirect '/admin'
   end
 
+  # Skapar en köprelation mellan användare och beat
+  #
+  # @param id [String] ID för beatet
   post '/beats/:id' do |id|
     redirect '/login' unless current_user
     User_beats.create(db, session[:user_id], id, Time.now.to_i)
     redirect '/admin'
   end
 
+  # Visar unauthorized-sidan
   get '/unauthorized' do
     erb :unauthorized
   end
 
+  # Loggar ut användaren
   post '/logout' do
     session.clear
     redirect '/'
   end
 
+  # Skapar ny användare
   post '/users/new' do
     safe_params = permitted_signup_params(params)
     if safe_params[:password] == safe_params[:confirm_password]
@@ -135,6 +175,7 @@ class App < Sinatra::Base
     end
   end
 
+  # Hanterar login
   post '/login' do
     request_email = params[:email]
     request_plain_password = params[:password]
@@ -155,9 +196,10 @@ class App < Sinatra::Base
     end
   end
 
-    post '/beats/purchase/:id' do |id|
-      redirect '/login' unless current_user
-      User_beats.create(db, session[:user_id], id, Time.now.to_i)
-      redirect '/admin'
-    end
+  # hanterar köpordrar och lägger dem i databasen
+  post '/beats/purchase/:id' do |id|
+    redirect '/login' unless current_user
+    User_beats.create(db, session[:user_id], id, Time.now.to_i)
+    redirect '/admin'
+  end
 end
